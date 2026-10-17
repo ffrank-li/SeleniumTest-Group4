@@ -37,7 +37,7 @@ public class ParabankTest {
 
 
     @Test
-    public void testCreateAccount() throws InterruptedException {
+    public void testCreateValidAccount(){
         driver.get("https://parabank.parasoft.com/parabank/register.htm");
 
         //Get names of all input boxes
@@ -67,7 +67,141 @@ public class ParabankTest {
         password.sendKeys("password");
         confirm.sendKeys("password");
         register.click();
-        Thread.sleep(5000);
+    }
+
+    @Test
+    public void testCreateAccountDifferentPasswords(){
+        driver.get("https://parabank.parasoft.com/parabank/register.htm");
+
+        //Get names of all input boxes
+        WebElement firstName = driver.findElement(By.name("customer.firstName"));
+        WebElement lastName = driver.findElement(By.name("customer.lastName"));
+        WebElement address = driver.findElement(By.name("customer.address.street"));
+        WebElement city = driver.findElement(By.name("customer.address.city"));
+        WebElement state = driver.findElement(By.name("customer.address.state"));
+        WebElement zip = driver.findElement(By.name("customer.address.zipCode"));
+        WebElement phone = driver.findElement(By.name("customer.phoneNumber"));
+        WebElement snn = driver.findElement(By.name("customer.ssn"));
+        WebElement username = driver.findElement(By.name("customer.username"));
+        WebElement password = driver.findElement(By.name("customer.password"));
+        WebElement confirm = driver.findElement(By.name("repeatedPassword"));
+        WebElement register = driver.findElement(By.cssSelector("input[type='submit'][value='Register']"));
+
+        // Input fields
+        firstName.sendKeys("John");
+        lastName.sendKeys("Doe");
+        address.sendKeys("123 Sample Street");
+        city.sendKeys("Melbourne");
+        state.sendKeys("Victoria");
+        zip.sendKeys("3000");
+        phone.sendKeys("1234567890");
+        snn.sendKeys("123-45-6789");
+        username.sendKeys("testusername");
+        password.sendKeys("password");
+        confirm.sendKeys("differentpassword");
+        register.click();
+
+        WebElement passwordError = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("repeatedPassword.errors")));
+        assertEquals("Passwords did not match.", passwordError.getText());
+    }
+
+    @Test
+    public void testCreateExistingAccount() {
+        driver.get("https://parabank.parasoft.com/parabank/register.htm");
+
+        //Get names of all input boxes
+        WebElement firstName = driver.findElement(By.name("customer.firstName"));
+        WebElement lastName = driver.findElement(By.name("customer.lastName"));
+        WebElement address = driver.findElement(By.name("customer.address.street"));
+        WebElement city = driver.findElement(By.name("customer.address.city"));
+        WebElement state = driver.findElement(By.name("customer.address.state"));
+        WebElement zip = driver.findElement(By.name("customer.address.zipCode"));
+        WebElement phone = driver.findElement(By.name("customer.phoneNumber"));
+        WebElement snn = driver.findElement(By.name("customer.ssn"));
+        WebElement username = driver.findElement(By.name("customer.username"));
+        WebElement password = driver.findElement(By.name("customer.password"));
+        WebElement confirm = driver.findElement(By.name("repeatedPassword"));
+        WebElement register = driver.findElement(By.cssSelector("input[type='submit'][value='Register']"));
+
+        // Input fields
+        firstName.sendKeys("John");
+        lastName.sendKeys("Doe");
+        address.sendKeys("123 Sample Street");
+        city.sendKeys("Melbourne");
+        state.sendKeys("Victoria");
+        zip.sendKeys("3000");
+        phone.sendKeys("1234567890");
+        snn.sendKeys("123-45-6789");
+        username.sendKeys("john");
+        password.sendKeys("password");
+        confirm.sendKeys("password");
+        register.click();
+
+        //check fails as user already exists
+        WebElement usernameError = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("customer.username.errors")));
+        assertEquals("This username already exists.", usernameError.getText());
+    }
+
+
+    @Test
+    public void testCreateAccountWithBlankFields() {
+        driver.get("https://parabank.parasoft.com/parabank/register.htm");
+
+        //Get names of register
+        WebElement register = driver.findElement(By.cssSelector("input[type='submit'][value='Register']"));
+
+        // click register
+        register.click();
+
+        //check fails as no fields are inputted
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("customer.firstName.errors")));
+        assertEquals("First name is required.", driver.findElement(By.id("customer.firstName.errors")).getText());
+        assertEquals("Last name is required.", driver.findElement(By.id("customer.lastName.errors")).getText());
+        assertEquals("Address is required.", driver.findElement(By.id("customer.address.street.errors")).getText());
+        assertEquals("City is required.", driver.findElement(By.id("customer.address.city.errors")).getText());
+        assertEquals("State is required.", driver.findElement(By.id("customer.address.state.errors")).getText());
+        assertEquals("Zip Code is required.", driver.findElement(By.id("customer.address.zipCode.errors")).getText());
+        assertEquals("Social Security Number is required.", driver.findElement(By.id("customer.ssn.errors")).getText());
+        assertEquals("Username is required.", driver.findElement(By.id("customer.username.errors")).getText());
+        assertEquals("Password is required.", driver.findElement(By.id("customer.password.errors")).getText());
+        assertEquals("Password confirmation is required.", driver.findElement(By.id("repeatedPassword.errors")).getText());
+    }
+
+    @Test
+    public void testCreateAccountWithInvalidSSN() {
+        driver.get("https://parabank.parasoft.com/parabank/register.htm");
+
+        //Get names of all input boxes
+        WebElement firstName = driver.findElement(By.name("customer.firstName"));
+        WebElement lastName = driver.findElement(By.name("customer.lastName"));
+        WebElement address = driver.findElement(By.name("customer.address.street"));
+        WebElement city = driver.findElement(By.name("customer.address.city"));
+        WebElement state = driver.findElement(By.name("customer.address.state"));
+        WebElement zip = driver.findElement(By.name("customer.address.zipCode"));
+        WebElement phone = driver.findElement(By.name("customer.phoneNumber"));
+        WebElement snn = driver.findElement(By.name("customer.ssn"));
+        WebElement username = driver.findElement(By.name("customer.username"));
+        WebElement password = driver.findElement(By.name("customer.password"));
+        WebElement confirm = driver.findElement(By.name("repeatedPassword"));
+        WebElement register = driver.findElement(By.cssSelector("input[type='submit'][value='Register']"));
+
+        // Input fields
+        firstName.sendKeys("John");
+        lastName.sendKeys("Doe");
+        address.sendKeys("123 Sample Street");
+        city.sendKeys("Melbourne");
+        state.sendKeys("Victoria");
+        zip.sendKeys("3000");
+        phone.sendKeys("1234567890");
+        snn.sendKeys("ABC-DE-FGHI");
+        username.sendKeys("testuser1234");
+        password.sendKeys("password");
+        confirm.sendKeys("password");
+        register.click();
+
+        //check fails as ssn is invalid
+        WebElement ssnError = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("customer.ssn.errors")));
+        assertEquals("Please enter a valid SSN format.", ssnError.getText());
     }
 
     @Test
