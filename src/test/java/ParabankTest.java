@@ -91,7 +91,7 @@ public class ParabankTest {
     }
 
     @Test
-    public void testLoginAndOpenAccount() throws InterruptedException {
+    public void testLoginAndOpenCheckingAccount() throws InterruptedException {
 
         driver.get("https://parabank.parasoft.com/parabank/index.htm");
 
@@ -108,6 +108,40 @@ public class ParabankTest {
         WebElement dropdownElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("type")));
         Select typeDropdown = new Select(dropdownElement);
         typeDropdown.selectByVisibleText("CHECKING");
+
+        //select account number
+        wait.until(ExpectedConditions.presenceOfNestedElementLocatedBy(By.id("fromAccountId"), By.tagName("option")));
+        Select fromAccountDropdown = new Select(driver.findElement(By.id("fromAccountId")));
+        fromAccountDropdown.selectByIndex(0);
+
+        //open account
+        WebElement openAccountButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("input[value='Open New Account']")));
+        openAccountButton.click();
+
+        //verify account has been created
+        WebElement resultHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#openAccountResult .title")));
+        assertEquals("Account Opened!", resultHeader.getText());
+
+    }
+
+    @Test
+    public void testLoginAndOpenSavingAccount() throws InterruptedException {
+
+        driver.get("https://parabank.parasoft.com/parabank/index.htm");
+
+        //login
+        driver.findElement(By.name("username")).sendKeys("testusername");
+        driver.findElement(By.name("password")).sendKeys("password");
+        driver.findElement(By.cssSelector("input[type='submit'][value='Log In']")).click();
+
+        //open new account page
+        WebElement openAccount = wait.until(ExpectedConditions.elementToBeClickable(By.linkText("Open New Account")));
+        openAccount.click();
+
+        //select type
+        WebElement dropdownElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("type")));
+        Select typeDropdown = new Select(dropdownElement);
+        typeDropdown.selectByVisibleText("SAVINGS");
 
         //select account number
         wait.until(ExpectedConditions.presenceOfNestedElementLocatedBy(By.id("fromAccountId"), By.tagName("option")));
