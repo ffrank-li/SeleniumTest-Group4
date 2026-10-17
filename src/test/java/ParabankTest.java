@@ -10,15 +10,34 @@ import java.time.Duration;
 import org.openqa.selenium.chrome.ChromeOptions;
 import java.util.HashMap;
 import java.util.Map;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public class ParabankTest {
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    @BeforeEach
+    public void setUp() {
+        //initialise chrome with options
+        //hides chromes compromised password notification
+        Map<String, Object> prefs = new HashMap<>();
+        prefs.put("credentials_enable_service", false);
+        prefs.put("profile.password_manager_enabled", false);
+        ChromeOptions options = new ChromeOptions();
+        options.setExperimentalOption("prefs", prefs);
+        options.addArguments("--disable-popup-blocking");
+        options.addArguments("--incognito");
+
+        driver = new ChromeDriver(options);
+
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
 
 
     @Test
     public void testCreateAccount() throws InterruptedException {
-
-        /*Activity 1*/
-        WebDriver driver = new ChromeDriver();
         driver.get("https://parabank.parasoft.com/parabank/register.htm");
 
         //Get names of all input boxes
@@ -49,40 +68,30 @@ public class ParabankTest {
         confirm.sendKeys("password");
         register.click();
         Thread.sleep(5000);
-        driver.quit();
     }
 
     @Test
     public void testLogin() throws InterruptedException {
-        WebDriver driver = new ChromeDriver();
         driver.get("https://parabank.parasoft.com/parabank/index.htm");
 
         WebElement username = driver.findElement(By.name("username"));
         WebElement password = driver.findElement(By.name("password"));
         WebElement login = driver.findElement(By.cssSelector("input[type='submit'][value='Log In']"));
 
+        //send user and password
         username.sendKeys("testusername");
         password.sendKeys("password");
 
+        //click login
         login.click();
 
-        Thread.sleep(5000);
+        //verify accounts can be seen
+        WebElement overviewTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("h1.title")));
+        assertEquals("Accounts Overview", overviewTitle.getText());
     }
 
     @Test
     public void testLoginAndOpenAccount() throws InterruptedException {
-        //hides chromes compromised password notification
-        Map<String, Object> prefs = new HashMap<>();
-        prefs.put("credentials_enable_service", false);
-        prefs.put("profile.password_manager_enabled", false);
-        ChromeOptions options = new ChromeOptions();
-        options.setExperimentalOption("prefs", prefs);
-        options.addArguments("--disable-popup-blocking");
-        options.addArguments("--incognito");
-
-        WebDriver driver = new ChromeDriver(options);
-
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
         driver.get("https://parabank.parasoft.com/parabank/index.htm");
 
@@ -101,17 +110,24 @@ public class ParabankTest {
         typeDropdown.selectByVisibleText("CHECKING");
 
         //select account number
-        WebElement fromAccountElement = driver.findElement(By.id("fromAccountId"));
-        wait.until(ExpectedConditions.textToBePresentInElement(fromAccountElement, "13344"));
-        Select fromAccountDropdown = new Select(fromAccountElement);
-        fromAccountDropdown.selectByVisibleText("13344");
+        wait.until(ExpectedConditions.presenceOfNestedElementLocatedBy(By.id("fromAccountId"), By.tagName("option")));
+        Select fromAccountDropdown = new Select(driver.findElement(By.id("fromAccountId")));
+        fromAccountDropdown.selectByIndex(0);
 
         //open account
         WebElement openAccountButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("input[value='Open New Account']")));
         openAccountButton.click();
 
-        Thread.sleep(5000);
-        driver.close();
-        driver.quit();
+        //verify account has been created
+        WebElement resultHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#openAccountResult .title")));
+        assertEquals("Account Opened!", resultHeader.getText());
+
+    }
+
+    @AfterEach
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
     }
 }
