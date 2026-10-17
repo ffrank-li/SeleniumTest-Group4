@@ -71,7 +71,7 @@ public class ParabankTest {
     }
 
     @Test
-    public void testLogin() throws InterruptedException {
+    public void testLogin(){
         driver.get("https://parabank.parasoft.com/parabank/index.htm");
 
         WebElement username = driver.findElement(By.name("username"));
@@ -91,7 +91,67 @@ public class ParabankTest {
     }
 
     @Test
-    public void testLoginAndOpenCheckingAccount() throws InterruptedException {
+    public void testIncorrectLogin(){
+        driver.get("https://parabank.parasoft.com/parabank/index.htm");
+
+        WebElement username = driver.findElement(By.name("username"));
+        WebElement password = driver.findElement(By.name("password"));
+        WebElement login = driver.findElement(By.cssSelector("input[type='submit'][value='Log In']"));
+
+        //send user and password
+        username.sendKeys("testuser");
+        password.sendKeys("wrongPassword");
+
+        //click login
+        login.click();
+
+        //verify fail occurs
+        WebElement errorMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("p.error")));
+        assertEquals("The username and password could not be verified.", errorMessage.getText());
+    }
+
+    @Test
+    public void testInvalidUsername(){
+        driver.get("https://parabank.parasoft.com/parabank/index.htm");
+
+        WebElement username = driver.findElement(By.name("username"));
+        WebElement password = driver.findElement(By.name("password"));
+        WebElement login = driver.findElement(By.cssSelector("input[type='submit'][value='Log In']"));
+
+        //send no user and password
+        username.clear();
+        password.sendKeys("password");
+
+        //click login
+        login.click();
+
+        //verify fail occurs
+        WebElement errorMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("p.error")));
+        assertEquals("Please enter a username and password.", errorMessage.getText());
+    }
+
+    @Test
+    public void testInvalidPassword(){
+        driver.get("https://parabank.parasoft.com/parabank/index.htm");
+
+        WebElement username = driver.findElement(By.name("username"));
+        WebElement password = driver.findElement(By.name("password"));
+        WebElement login = driver.findElement(By.cssSelector("input[type='submit'][value='Log In']"));
+
+        //send user and no password
+        username.sendKeys("testuser");
+        password.clear();
+
+        //click login
+        login.click();
+
+        //verify fail occurs
+        WebElement errorMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("p.error")));
+        assertEquals("Please enter a username and password.", errorMessage.getText());
+    }
+
+    @Test
+    public void testLoginAndOpenCheckingAccount(){
 
         driver.get("https://parabank.parasoft.com/parabank/index.htm");
 
@@ -125,7 +185,7 @@ public class ParabankTest {
     }
 
     @Test
-    public void testLoginAndOpenSavingAccount() throws InterruptedException {
+    public void testLoginAndOpenSavingAccount(){
 
         driver.get("https://parabank.parasoft.com/parabank/index.htm");
 
